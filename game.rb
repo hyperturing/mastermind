@@ -1,37 +1,74 @@
 class Game
   require_relative 'player'
   require_relative 'board'
+  require_relative 'computer'
   attr_reader :round
+  COLORS = %w[blue orange purple green red yellow].freeze
+  CODE_SIZE = 4
 
   def initialize
-    puts 'Welcome to Mastermind!!'
-    @player = Player.new
-    @board = Board.new
-    @round = 1
+    puts instructions
+    if ask_yes_no_question('Do you wish to be the codemaster? ')
+      @codebreaker = Computer.new('Ash 2.0', COLORS, CODE_SIZE)
+      @codemaker = Player.new('Ash')
+      @code = @codemaker.enter_code
+    else
+      @codebreaker = Player.new('Ash')
+      @codemaker = Computer.new('Ash 2.0')
+      @code = CODE_SIZE.times.reduce([]) { |output| output << COLORS.sample }
+    end
 
-    puts "Instructions:\n\n"
-    puts '========================'
-    puts 'Out of six possible colors,'
-    puts 'The secret code is a four color sequence (separated by spaces)'
-    puts "When prompted, enter your guess for the secret code\n\n"
-    puts "Correct guess legend:\n\n"
-    puts '[]: Correct value right position'
-    puts "@: Correct value wrong position\n\n"
+    @board = Board.new(@code, COLORS, CODE_SIZE)
+    @round = 1
   end
 
   def play_round
-    puts '%%%%%% Your Turn%%%%%%%%'
-    puts
-
-    until @board.validated_guess?(@player.guess_code) do @player.guess_code end
+    puts "Round #{round}"
+    puts "%%%%%% #{@codebreaker.name}'s' Turn%%%%%%%%"
+    @evaluation = @board.evaluate_guess(@codebreaker.enter_code)
+    @codebreaker.train(@evaluation) if @codebreaker.class == Computer
+    @board.display_board
     @round += 1
+    gets.chomp
   end
 
   def complete?
-    @board.correct_guess?(@player.guess) || @round == 9
+    @board.correct_guess? || @round == 12
   end
 
   def end_game
-    puts @correct ? 'You won!' : 'You lost!'
+    @codebreaker.name.to_s + (@board.correct ? ' won!' : ' lost!')
+  end
+
+  def instructions
+    ["Welcome to Mastermind!!\n",
+     "Instructions:\n\n",
+     '========================',
+     'Out of six possible colors,',
+     'The secret code is a four color sequence (separated by spaces)',
+     '=========================',
+     'Instructions for guesser:',
+     '==========================',
+     "When prompted, enter your guess for the secret code\n\n",
+     "Correct guess legend:\n\n",
+     '[]: Correct value right position',
+     "@: Correct value wrong position\n\n",
+     '================================',
+     'Instructions for codemaker:',
+     '==============================',
+     'When prompted, enter a four color sequence for the secret code'].join("\n") + "\n"
+  end
+
+  def ask_yes_no_question(question)
+    puts question
+    gets.chomp.chr == 'y'
+  end
+
+  def enter_code
+    until @board.validated?(@player.entry)
+      puts 'Invalid code format'
+      @player.enter_code
+    end
+    @player.entry
   end
 end
