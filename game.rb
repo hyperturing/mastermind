@@ -2,6 +2,7 @@ class Game
   require_relative 'player'
   require_relative 'board'
   require_relative 'computer'
+  require_relative 'utils'
   attr_reader :round
 
   COLORS = %w[blue orange purple green red yellow].freeze
@@ -9,7 +10,7 @@ class Game
 
   def initialize
     puts instructions
-    if ask_yes_no_question('Do you wish to be the codemaster? ')
+    if Utils.ask_yes_no_question('Do you wish to be the codemaster? ')
       puts "\n\nInitializing AI, please be patient"
       puts "They have a lot on their mind\n\n"
       @codebreaker = Computer.new('Ash 2.0', COLORS, CODE_SIZE)
@@ -40,7 +41,7 @@ class Game
   end
 
   def end_game
-    @codebreaker.name.to_s + (@board.correct ? ' won!' : ' lost!')
+    @codebreaker.name.to_s + (@board.winner? ? ' won!' : ' lost!')
   end
 
   def instructions
@@ -60,11 +61,6 @@ class Game
      'Instructions for codemaker:',
      '==============================',
      'When prompted, enter a four color sequence for the secret code'].join("\n") + "\n"
-  end
-
-  def ask_yes_no_question(question)
-    puts question
-    gets.chomp.chr == 'y'
   end
 
   def enter_code

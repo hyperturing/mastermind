@@ -1,6 +1,6 @@
-module Score
+module Utils
   def self.calculate_score(guess, code_size, code)
-    number_correct = number_wrong_position = 0
+    number_wrong_position = 0
     # Determine the number of elements in the correct position
     number_correct = guess.zip(code).count do |guess_elem, code_elem|
       guess_elem == code_elem
@@ -13,5 +13,10 @@ module Score
       end
     end
     [number_correct, number_wrong_position]
+  end
+
+  def self.ask_yes_no_question(question)
+    puts question
+    gets.chomp.chr == 'y'
   end
 end
