@@ -3,12 +3,15 @@ class Game
   require_relative 'board'
   require_relative 'computer'
   attr_reader :round
+
   COLORS = %w[blue orange purple green red yellow].freeze
   CODE_SIZE = 4
 
   def initialize
     puts instructions
     if ask_yes_no_question('Do you wish to be the codemaster? ')
+      puts "\n\nInitializing AI, please be patient"
+      puts "They have a lot on their mind\n\n"
       @codebreaker = Computer.new('Ash 2.0', COLORS, CODE_SIZE)
       @codemaker = Player.new('Ash')
       @code = @codemaker.enter_code
@@ -25,10 +28,10 @@ class Game
   def play_round
     puts "Round #{round}"
     puts "%%%%%% #{@codebreaker.name}'s' Turn%%%%%%%%"
-    @evaluation = @board.evaluate_guess(@codebreaker.enter_code)
-    @codebreaker.train(@evaluation) if @codebreaker.class == Computer
+    @codebreaker.score = @board.evaluate_guess(@codebreaker.enter_code)
     @board.display_board
     @round += 1
+    puts "Press any key to go to the next round"
     gets.chomp
   end
 
@@ -65,7 +68,7 @@ class Game
   end
 
   def enter_code
-    until @board.validated?(@player.entry)
+    until @board.validated?(@player.guess)
       puts 'Invalid code format'
       @player.enter_code
     end

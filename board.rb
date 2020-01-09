@@ -28,6 +28,6 @@ class Board
 
   def evaluate_guess(guess, code = @code)
     @guess = guess
-    @score = Score.score(guess, @code_size, code)
+    @score = Score.calculate_score(@guess, @code_size, code)
   end
 end

@@ -1,12 +1,14 @@
 class Player
-  attr_reader :entry, :name
+  attr_reader :guess, :name
+  attr_accessor :score
+
   def initialize(name)
-    @entry = []
+    @guess = []
     @name = name
   end
 
   def enter_code
     puts 'Enter a code:'
-    @entry = gets.chomp.split
+    @guess = gets.chomp.split
   end
 end
